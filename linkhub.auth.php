@@ -37,33 +37,31 @@ class Linkhub
 		$SHA1_BLOCKSIZE = 64;
 
 		$key = str_pad($key, $SHA1_BLOCKSIZE, chr(0x00));
-    	$ipad = str_repeat(chr(0x36), $SHA1_BLOCKSIZE);
-    	$opad = str_repeat(chr(0x5c), $SHA1_BLOCKSIZE);
-    	$hash1 = $this->LH_SHA1(($key ^ $ipad) . $text, true);
-    	$hmac = $this->LH_SHA1(($key ^ $opad) . $hash1, true);
-    	return $hmac;
+		$ipad = str_repeat(chr(0x36), $SHA1_BLOCKSIZE);
+		$opad = str_repeat(chr(0x5c), $SHA1_BLOCKSIZE);
+		$hash1 = $this->LH_SHA1(($key ^ $ipad) . $text, true);
+		$hmac = $this->LH_SHA1(($key ^ $opad) . $hash1, true);
+		return $hmac;
 	}	
 	function LH_MD5($text) {
 		$hex = md5($text);
-        $raw = '';
-        for ($i = 0; $i < 32; $i += 2) {
-        	$hexcode = substr($hex, $i, 2);
-        	$charcode = (int)base_convert($hexcode, 16, 10);
-            $raw .= chr($charcode);
-            }
-        return $raw;
-
+		$raw = '';
+		for ($i = 0; $i < 32; $i += 2) {
+			$hexcode = substr($hex, $i, 2);
+			$charcode = (int)base_convert($hexcode, 16, 10);
+			$raw .= chr($charcode);
+			}
+		return $raw;
 	}
 	function LH_SHA1($text) {
-        $hex = sha1($text);
-        $raw = '';
-        for ($i = 0; $i < 40; $i += 2) {
-        	$hexcode = substr($hex, $i, 2);
-            $charcode = (int)base_convert($hexcode, 16, 10);
-            $raw .= chr($charcode);
-        }
-        return $raw;
-
+		$hex = sha1($text);
+		$raw = '';
+		for ($i = 0; $i < 40; $i += 2) {
+			$hexcode = substr($hex, $i, 2);
+			$charcode = (int)base_convert($hexcode, 16, 10);
+			$raw .= chr($charcode);
+		}
+		return $raw;
 	}
 
 	function executeCURL($url,$header = array(),$isPost = false, $postdata = null) {
