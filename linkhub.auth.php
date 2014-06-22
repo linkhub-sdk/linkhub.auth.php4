@@ -159,6 +159,13 @@ class Linkhub
 		return $response->remainPoint;
 		
 	}
+	
+	function json_encode($obj) {
+		return $this->json->encode($obj);
+	}
+	function json_decode($text) {
+		return $this->json->decode($text);
+	}
 }
 
 class TokenRequest
