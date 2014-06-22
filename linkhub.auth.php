@@ -144,6 +144,9 @@ class Linkhub
 		$uri = '/'.$ServiceID.'/Point';
 		
 		$response = $this->executeCURL($this->ServiceURL . $uri,$header);
+		
+		if($response->isException) return $response;
+		
 		return $response->remainPoint;
 		
 	}
@@ -156,6 +159,8 @@ class Linkhub
 		$uri = '/'.$ServiceID.'/PartnerPoint';
 		
 		$response = $this->executeCURL($this->ServiceURL . $uri,$header);
+		if($response->isException) return $response;
+		
 		return $response->remainPoint;
 		
 	}
