@@ -4,7 +4,7 @@ require_once 'linkhub.auth.php';
 
 $ServiceID = 'POPBILL_TEST';
 $LinkID = 'TESTER';
-$SecretKey = 'yLyQfkJswMDmhh2suYsb4UMH1BAljaE4Vni3vBygvOw=';
+$SecretKey = 'jQIh/cKXGskpAdzgidwn9HWhXaTPD7+Gv4gGJ6=';
 
 $AccessID = '1231212312';
 $Linkhub = new Linkhub($LinkID,$SecretKey);
