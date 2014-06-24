@@ -98,9 +98,7 @@ class Linkhub
 	
 	function getToken($ServiceID, $access_id, $scope = array() , $forwardIP = null)
 	{
-		//TODO UTC Check.
-		//date_default_timezone_set("UTC");
-		$xDate = date("Y-m-d\TH:i:s\Z", time()); 
+		$xDate = gmdate("Y-m-d\TH:i:s\Z", time()); 
 		
 		$uri = '/' . $ServiceID . '/Token';
 		$header = array();
