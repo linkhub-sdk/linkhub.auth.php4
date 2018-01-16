@@ -18,7 +18,7 @@
 */
 require_once 'JSON.php';
 
-class Linkhub 
+class Linkhub
 {
 	var $json;
 
@@ -42,7 +42,7 @@ class Linkhub
 		$hash1 = $this->LH_SHA1(($key ^ $ipad) . $text, true);
 		$hmac = $this->LH_SHA1(($key ^ $opad) . $hash1, true);
 		return $hmac;
-	}	
+	}
 	function LH_MD5($text) {
 		$hex = md5($text);
 		$raw = '';
@@ -66,49 +66,49 @@ class Linkhub
 
 	function executeCURL($url,$header = array(),$isPost = false, $postdata = null) {
 		$http = curl_init($url);
-		
+
 		if($isPost) {
 			curl_setopt($http, CURLOPT_POST,1);
-			curl_setopt($http, CURLOPT_POSTFIELDS, $postdata);   
+			curl_setopt($http, CURLOPT_POSTFIELDS, $postdata);
 		}
 		curl_setopt($http, CURLOPT_HTTPHEADER,$header);
 		curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
-	        
+
 		// SSL 인증서 검증은 필수 입니다.
 		// http://curl.haxx.se/docs/caextract.html 에서 루트인증서를 업데이트 하십시오.
 		// ex. /usr/share/ssl/certs/ca-bundle.crt
 		//curl_setopt ($http, CURLOPT_SSL_VERIFYHOST, 0);
-		//curl_setopt ($http, CURLOPT_SSL_VERIFYPEER, 0); 
+		//curl_setopt ($http, CURLOPT_SSL_VERIFYPEER, 0);
 
 		$responseJson = curl_exec($http);
-		
+
 		$http_status = curl_getinfo($http, CURLINFO_HTTP_CODE);
-		
+
 		if($http_status == 0) {
 			echo curl_error($http);
 		}
 		curl_close($http);
-		
+
 		if($http_status != 200) {
 			return new LinkhubException($responseJson);
 		}
-		
+
 		return $this->json->decode($responseJson);
 	}
-	
+
 	function getToken($ServiceID, $access_id, $scope = array() , $forwardIP = null)
 	{
-		$xDate = gmdate("Y-m-d\TH:i:s\Z", time()); 
-		
+		$xDate = $this->getTime();
+
 		$uri = '/' . $ServiceID . '/Token';
 		$header = array();
-		
+
 		$TokenRequest = new TokenRequest();
 		$TokenRequest->access_id = $access_id;
 		$TokenRequest->scope = $scope;
-	
+
 		$postdata = $this->json->encode($TokenRequest);
-	
+
 		$digestTarget = 'POST'.chr(10);
 		$digestTarget = $digestTarget.base64_encode($this->LH_MD5($postdata)).chr(10);
 		$digestTarget = $digestTarget.$xDate.chr(10);
@@ -117,7 +117,7 @@ class Linkhub
 		}
 		$digestTarget = $digestTarget.$this->VERSION.chr(10);
 		$digestTarget = $digestTarget.$uri;
-	
+
 		$digest = base64_encode($this->hmac($digestTarget,base64_decode(strtr($this->__SecretKey, '-_', '+/'))));
 
 		$header[] = 'x-lh-date: '.$xDate;
@@ -125,44 +125,53 @@ class Linkhub
 		if(!(is_null($forwardIP) || $forwardIP == '')) {
 			$header[] = 'x-lh-forwarded: '.$forwardIP;
 		}
-		
+
 		$header[] = 'Authorization: LINKHUB '.$this->__LinkID.' '.$digest;
 		$header[] = 'Content-Type: Application/json';
-		
+
 		return $this->executeCURL($this->ServiceURL.$uri , $header,true,$postdata);
-		
+
 	}
-	
-	
+
+  // added 2018-01-16
+  function getTime(){
+    $http = curl_init($this->ServiceURL.'/Time');
+		curl_setopt($http, CURLOPT_RETURNTRANSFER, TRUE);
+    $response = curl_exec($http);
+		curl_close($http);
+
+		return $response;
+  }
+
 	function getBalance($bearerToken, $ServiceID)
 	{
 		$header = array();
 		$header[] = 'Authorization: Bearer '.$bearerToken;
-		
+
 		$uri = '/'.$ServiceID.'/Point';
-		
+
 		$response = $this->executeCURL($this->ServiceURL . $uri,$header);
-		
+
 		if(is_a($response ,'LinkhubException')) return $response;
-		
+
 		return $response->remainPoint;
-		
+
 	}
-	
+
 	function getPartnerBalance($bearerToken, $ServiceID)
 	{
 		$header = array();
 		$header[] = 'Authorization: Bearer '.$bearerToken;
-		
+
 		$uri = '/'.$ServiceID.'/PartnerPoint';
-		
+
 		$response = $this->executeCURL($this->ServiceURL . $uri,$header);
 		if(is_a($response ,'LinkhubException')) return $response;
-		
+
 		return $response->remainPoint;
-		
+
 	}
-	
+
 	function json_encode($obj) {
 		return $this->json->encode($obj);
 	}
