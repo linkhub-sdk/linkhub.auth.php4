@@ -169,8 +169,19 @@ class Linkhub
 		if(is_a($response ,'LinkhubException')) return $response;
 
 		return $response->remainPoint;
-
 	}
+
+  function getPartnerURL($bearerToken, $ServiceID, $TOGO)
+  {
+    $header = array();
+    $header[] = 'Authorization: Bearer '.$bearerToken;
+    $header[] = 'Accept-Encoding: gzip,deflate';
+    $header[] = 'Connection: close';
+    $uri = '/'.$ServiceID.'/URL?TG='.$TOGO;
+
+    $response = $this->executeCURL($this->ServiceURL . $uri, $header);
+    return $response;
+  }
 
 	function json_encode($obj) {
 		return $this->json->encode($obj);
